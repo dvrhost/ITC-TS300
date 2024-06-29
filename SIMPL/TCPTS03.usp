@@ -1,0 +1,182 @@
+#CATEGORY "28" // System Control
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "ITC TS-0300M Control Module"
+#DEFINE_CONSTANT BUFFER_SIZE 4096
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+/*******************************************************************************************
+  Include Libraries
+*******************************************************************************************/
+#user_simplsharp_library "ITCTS300"
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+digital_input
+    Initialize,
+    Connect,
+    Disconnect,
+    EnableDebug,
+	_skip_,
+	MicIsDelegate,
+	MicIsWireless,
+	TurnMicOn,
+	TurnMicOff,
+	_skip_,
+	SetModeToFiFo,
+	SetModeToNormal,
+	SetModeToVoice,
+	SetModeToApply;
+analog_input
+    Port,
+	_skip_,
+	SelectedMicID,
+	_skip_,
+	DelegateNumberMode;
+string_input
+    IP[16],
+    RawTxData[BUFFER_SIZE];
+digital_output
+    InitializedFb,
+    ConnectedFb,
+    _skip_;
+analog_output
+    ConnectionStatusAnalogFb;
+string_output
+    ConnectionStatusSerialFb,
+    ErrorStatusFb,
+    RawRxData;
+    
+TS300Communications	TS300;
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+push Initialize
+{
+    TS300.Initialize(IP, Port, BUFFER_SIZE);
+}
+
+push Connect
+{
+    TS300.Connect();    
+}
+
+push Disconnect
+{
+    TS300.Disconnect();
+}
+
+push EnableDebug
+{
+    TS300.EnableDebug();
+}
+
+release EnableDebug
+{
+    TS300.DisableDebug();
+}
+
+change RawTxData
+{
+    TS300.SendString(RawTxData);
+}
+  
+callback function ConnectionStatusCallbackFunction(string serialStatus, integer analogStatus)
+{
+    ConnectionStatusSerialFb = serialStatus;
+    ConnectionStatusAnalogFb = analogStatus;
+	if(analogStatus = 2)
+	{
+		ConnectedFb = 1;
+	}
+	else
+	{
+     	ConnectedFb = 0;
+	}		
+}
+
+callback function InitializedCallbackFunction(integer status)
+{
+    InitializedFb = status;    
+}
+
+callback function ReceiveDataCallbackFunction(string data)
+{
+    RawRxData = data;
+}
+push TurnMicOn
+{	
+	if(ConnectedFb=1)
+	{
+ 		TS300.MicCtrl(SelectedMicID,1,MicIsWireless,MicIsDelegate);
+	}
+}
+
+push TurnMicOff
+{	
+	if(ConnectedFb=1)
+	{
+ 		TS300.MicCtrl(SelectedMicID,0,MicIsWireless,MicIsDelegate);
+	}
+}
+
+push SetModeToFiFo
+{
+	if(ConnectedFb=1)
+	{
+		if (DelegateNumberMode>0 & DelegateNumberMode<5)
+		{
+    		TS300.SetWiredConferenceMode(1,DelegateNumberMode);
+        	TS300.SetWirelessConferenceMode(1,DelegateNumberMode);
+		}
+	}
+}
+push SetModeToNormal
+{
+	if(ConnectedFb=1)
+	{
+		if (DelegateNumberMode>0 & DelegateNumberMode<5)
+		{
+    		TS300.SetWiredConferenceMode(2,DelegateNumberMode);
+        	TS300.SetWirelessConferenceMode(2,DelegateNumberMode);
+		}
+	}
+}
+push SetModeToVoice
+{
+	if(ConnectedFb=1)
+	{
+		if (DelegateNumberMode>0 & DelegateNumberMode<5)
+		{
+    		TS300.SetWiredConferenceMode(3,DelegateNumberMode);
+        	TS300.SetWirelessConferenceMode(3,DelegateNumberMode);
+		}
+	}
+}
+push SetModeToApply
+{
+	if(ConnectedFb=1)
+	{
+		if (DelegateNumberMode>0 & DelegateNumberMode<5)
+		{
+    		TS300.SetWiredConferenceMode(4,DelegateNumberMode);
+        	TS300.SetWirelessConferenceMode(4,DelegateNumberMode);
+		}
+	}
+}
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+
+Function Main()
+{
+    waitForInitializationComplete();
+    registerDelegate(TS300, ReceiveData, ReceiveDataCallbackFunction);
+    registerDelegate(TS300, ConnectionStatus, ConnectionStatusCallbackFunction);
+    registerDelegate(TS300, InitializedStatus, InitializedCallbackFunction);
+    
+}

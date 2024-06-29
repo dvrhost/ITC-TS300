@@ -1,0 +1,43 @@
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=ArchiveManifest
+  RelVrs=4.2200.00
+  IsProgram=1
+  TopLevelProgram=ts-0300.smw
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ts-0300.smw
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ts-0300.sig
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ts-0300.lpz
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ts-0300.smft
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ts-0300.lpz.hash
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=TCPTS03.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=ITCTS300.clz
+  Scope=1
+  Module=TCPTS03.ush
+[END]
